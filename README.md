@@ -12,38 +12,21 @@ The final output is an analytics-ready **Gold Layer Star Schema** containing fac
 
 ---
 
-# Architecture
+## Architecture
 
-```mermaid
-flowchart LR
+![Architecture Overview](docs/architecture_overview.png)
 
-    A[FastAPI Ride Booking UI] --> B[Python Event Producer]
-    B --> C[Azure Event Hubs]
+The solution combines two ingestion paths:
 
-    C --> D[Azure Databricks]
-    D --> E[Apache Spark Structured Streaming]
-    E --> F[Bronze rides_raw]
+- **Real-time streaming path:** FastAPI → Azure Event Hubs → Azure Databricks → Apache Spark Structured Streaming
+- **Batch reference-data path:** GitHub / HTTP JSON files → Azure Data Factory → ADLS Gen2 → Databricks reference tables
 
-    G[GitHub Reference Data] --> H[Azure Data Factory]
-    H --> I[HTTP Copy Activity]
-    I --> J[ADLS Gen2]
-    J --> K[Bronze Reference Tables]
+Both paths converge in the **Silver One Big Table (OBT)**, where streaming ride events are enriched with reference data.
 
-    F --> L[stg_rides]
-    K --> M[Silver OBT]
-    L --> M
+The enriched Silver data is then transformed into an analytics-ready **Gold Layer Star Schema** containing fact and dimension tables.
 
-    M --> N[Gold Layer]
+---
 
-    N --> O[dim_passenger]
-    N --> P[dim_driver]
-    N --> Q[dim_vehicle]
-    N --> R[dim_payment]
-    N --> S[dim_booking]
-    N --> T[dim_location]
-    N --> U[fact_rides]
-
-```
 ## Technology Stack
 
 | Area | Technology |
@@ -139,6 +122,7 @@ RG_UberProject
 │
 └── Azure Databricks
 ```
+---
 
 ### Azure Event Hubs
 
