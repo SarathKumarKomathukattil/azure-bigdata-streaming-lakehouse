@@ -1,0 +1,7 @@
+fastapi
+uvicorn
+faker
+azure-eventhub
+python-dotenv
+jinja2
+pandas
