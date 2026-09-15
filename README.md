@@ -355,5 +355,5 @@ rating
 
 The complete Databricks pipeline combines streaming ride data with Delta reference tables, creates the Silver OBT, and generates the Gold dimensional model.
 
-![Databricks Pipeline Graph](docs/architecture/databricks_pipeline_graph.png)
+![Databricks Pipeline Graph](docs/databricks_pipeline_graph.png)
 
