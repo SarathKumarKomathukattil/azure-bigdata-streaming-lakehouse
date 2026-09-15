@@ -385,3 +385,241 @@ The project uses Azure Data Factory, ADLS Gen2, Azure Event Hubs and Azure Datab
 
 ![Azure Resources](docs/azure_resources.png)
 
+---
+
+## Repository Structure
+
+```text
+azure-bigdata-streaming-lakehouse/
+│
+├── README.md
+├── requirements.txt
+├── .gitignore
+├── .env.example
+├── LICENSE
+│
+├── application/
+│   ├── api.py
+│   ├── eventhub_producer.py
+│   ├── ride_generator.py
+│   └── templates/
+│       ├── home.html
+│       └── confirmation.html
+│
+├── azure-data-factory/
+│   ├── files_array.json
+│   ├── pipelines/
+│   │   └── HTTPToADLS.json
+│   └── datasets/
+│       ├── ds_github.json
+│       └── ds_ingest.json
+│
+├── databricks/
+│   ├── bronze/
+│   │   ├── reference_data_ingestion.py
+│   │   └── eventhub_ingestion.py
+│   │
+│   ├── silver/
+│   │   ├── silver_streaming.py
+│   │   ├── obt_query_generator.py
+│   │   └── silver_obt.sql
+│   │
+│   └── gold/
+│       └── dimensional_model.py
+│
+├── reference-data/
+│   ├── map_cities.json
+│   ├── map_cancellation_reasons.json
+│   ├── map_payment_methods.json
+│   ├── map_ride_statuses.json
+│   ├── map_vehicle_makes.json
+│   └── map_vehicle_types.json
+│
+├── docs/
+│   ├── architecture/
+│   │   ├── solution_architecture.png
+│   │   └── databricks_pipeline_graph.png
+│   └── screenshots/
+│       ├── azure-resources.png
+│       ├── ride-booking-app.png
+│       ├── eventhub-stream.png
+│       ├── adf-http-ingestion.png
+│       ├── silver-obt.png
+│       └── gold-star-schema.png
+│
+└── sql/
+    └── validation_queries.sql
+```
+
+---
+
+## How to Run
+
+### 1. Configure the application
+
+Create a `.env` file:
+
+```text
+CONNECTION_STRING=<YOUR_EVENT_HUB_CONNECTION_STRING>
+EVENT_HUBNAME=<YOUR_EVENT_HUB_NAME>
+```
+
+Install dependencies:
+
+```bash
+pip install -r requirements.txt
+```
+
+Start the FastAPI application:
+
+```bash
+python application/api.py
+```
+
+Open:
+
+```text
+http://127.0.0.1:8000
+```
+
+Creating a ride from the UI generates a simulated ride event and publishes it to Azure Event Hubs.
+
+### 2. Run the Azure Data Factory pipeline
+
+Run the `HTTPToADLS` pipeline to ingest the reference JSON datasets into ADLS Gen2.
+
+The pipeline performs:
+
+```text
+Lookup
+  ↓
+ForEach
+  ↓
+HTTP Copy
+  ↓
+ADLS Gen2
+```
+
+### 3. Run the Databricks pipeline
+
+The Databricks Lakeflow pipeline:
+
+```text
+Event Hubs
+    ↓
+rides_raw
+    ↓
+stg_rides
+    ↓
+silver_obt
+    ↓
+Gold Dimensions + Fact Table
+```
+
+---
+
+## Security
+
+Secrets and credentials are not stored in the repository.
+
+The following should never be committed:
+
+- Azure Event Hubs connection strings
+- Shared Access Keys
+- ADLS SAS tokens
+- Databricks credentials
+- `.env` files
+
+Environment variables are used for application secrets.
+
+Example:
+
+```python
+CONNECTION_STRING = os.getenv("CONNECTION_STRING")
+EVENT_HUBNAME = os.getenv("EVENT_HUBNAME")
+```
+
+---
+
+## Key Engineering Concepts
+
+This project demonstrates:
+
+- Big data processing with Apache Spark
+- PySpark transformations
+- Spark Structured Streaming
+- Azure Event Hubs streaming
+- Kafka-compatible ingestion
+- Azure Data Factory orchestration
+- HTTP-based batch ingestion
+- ADLS Gen2 storage
+- Delta Lake
+- Lakeflow Declarative Pipelines
+- Bronze, Silver and Gold Medallion Architecture
+- Batch and streaming integration
+- Explicit streaming schemas
+- Watermarking
+- Stream-static joins
+- One Big Table modelling
+- Jinja2 metadata-driven SQL generation
+- Change Data Capture
+- SCD Type 1
+- SCD Type 2
+- Fact and dimension tables
+- Star Schema modelling
+
+---
+
+## Future Improvements
+
+Possible enhancements include:
+
+- Azure Key Vault for secret management
+- Terraform or Bicep for Infrastructure as Code
+- Databricks Asset Bundles
+- CI/CD with GitHub Actions
+- Lakeflow data-quality expectations
+- Streaming monitoring and alerting
+- Unity Catalog governance
+- Power BI dashboards
+- MLflow integration
+- Real-time ML inference
+
+---
+
+## Project Summary
+
+This project demonstrates an end-to-end Azure big data platform that combines:
+
+```text
+Real-Time Streaming
+        +
+Batch Ingestion
+        +
+Distributed Processing
+        +
+Lakehouse Architecture
+        +
+Dimensional Modelling
+```
+
+The complete lifecycle is:
+
+```text
+Generate
+   ↓
+Ingest
+   ↓
+Stream
+   ↓
+Store
+   ↓
+Transform
+   ↓
+Enrich
+   ↓
+Model
+   ↓
+Serve
+```
+
